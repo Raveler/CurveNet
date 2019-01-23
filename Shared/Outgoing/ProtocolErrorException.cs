@@ -1,7 +1,6 @@
-using Bombardel.CurveNet.Server.WebSockets;
 using System;
 
-namespace Bombardel.CurveNet.Server.Sessions.Outgoing
+namespace Bombardel.CurveNet.Shared.ServerMessages
 {
 	public class ProtocolErrorException : Exception
 	{

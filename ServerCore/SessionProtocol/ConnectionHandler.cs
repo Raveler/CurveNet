@@ -7,9 +7,11 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Bombardel.CurveNet.Server.Sessions.Incoming;
-using Bombardel.CurveNet.Server.Sessions.Outgoing;
 using Bombardel.CurveNet.Server.WebSockets;
+using Bombardel.CurveNet.Shared.Client;
+using Bombardel.CurveNet.Shared.ClientMessages;
+using Bombardel.CurveNet.Shared.Server;
+using Bombardel.CurveNet.Shared.ServerMessages;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -23,14 +25,19 @@ using static Bombardel.CurveNet.Server.Sessions.ObjectBasedSerializer;
 namespace Bombardel.CurveNet.Server.Sessions
 {
 
-	public class ConnectionHandler : IConnectionHandler
+	public class ConnectionHandler : IConnectionHandler, IServer
 	{
+		public IClient Connection => _clientSerializer;
+		public string Id => _id;
+
+
 		private GameManager _gameManager;
 		private Connection _connection;
+		private ClientSerializer _clientSerializer;
 
 		private string _id;
 
-		private ObjectBasedSerializer _serializer;
+		private ServerDeserializer _deserializer;
 
 
 		public ConnectionHandler(GameManager gameManager, Connection conn, string id)
@@ -38,23 +45,8 @@ namespace Bombardel.CurveNet.Server.Sessions
 			_connection = conn;
 			_gameManager = gameManager;
 			_id = id;
-
-			_serializer = new ObjectBasedSerializer();
-
-			// incoming messages
-			AddType<JoinRoomEvent>(_gameManager.JoinRoom);
-			AddType<LeaveRoomEvent>(_gameManager.LeaveRoom);
-
-			// outgoing messages
-			AddType<ProtocolErrorMessage>(null);
-
-		}
-
-		private void AddType<T>(Action<string, T> messageCallback) {
-			_serializer.AddType<T>(new JsonSerializer<T>((T obj) =>
-			{
-				messageCallback(_id, obj);
-			}));
+			_deserializer = new ServerDeserializer(this);
+			_clientSerializer = new ClientSerializer(_connection);
 		}
 
 		public void OnClose()
@@ -66,35 +58,61 @@ namespace Bombardel.CurveNet.Server.Sessions
 		{
 			try
 			{
-				_serializer.Deserialize(message, 0, message.Length);
+				_deserializer.Deserialize(message);
 			}
-			catch (TypeNotRegisteredException e) {
-				Send(new ProtocolErrorMessage()
-				{
-					error = ProtocolError.InvalidMessageType,
-				});
+			catch (MessageTypeNotSupportedException) {
+				Connection.SendProtocolError(ProtocolError.InvalidMessageType);
 			}
 			catch (ProtocolErrorException e)
 			{
-				Send(new ProtocolErrorMessage()
-				{
-					error = e.error,
-				});
+				Connection.SendProtocolError(e.error);
 			}
 		}
 
-		public void Send<T>(T obj) {
-			try
-			{
-				byte[] bytes = _serializer.Serialize(obj);
-			}
-			catch (TypeNotRegisteredException e)
-			{
-				Send(new ProtocolErrorMessage()
-				{
-					error = ProtocolError.InvalidMessageType,
-				});
-			}
+
+		public void JoinRoom(string roomName)
+		{
+			_gameManager.JoinRoom(this, roomName);
+		}
+
+		public void LeaveRoom(string roomName)
+		{
+			_gameManager.LeaveRoom(this, roomName);
+		}
+
+		public void ListRooms()
+		{
+			_gameManager.ListRooms(this);
+		}
+		
+		public void AddCurve(string objectId)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void AddObjectToRoom(string objectId, string roomName)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void CreateObject(string objectId)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void UpdateCurve(string objectId)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void UpdateCurves(string objectId)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void RemoveObject(string objectId)
+		{
+			throw new NotImplementedException();
 		}
 	}
 }

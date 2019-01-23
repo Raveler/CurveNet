@@ -7,6 +7,7 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Bombardel.CurveNet.Shared.Server;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -19,13 +20,14 @@ using Microsoft.Extensions.Logging;
 namespace Bombardel.CurveNet.Server.WebSockets
 {
 
-	public class Connection
+	public class Connection : IConnection
 	{
 		private class WebSocketClosedException : Exception {
 			public WebSocketCloseStatus CloseStatus { get; set; }
 			public string CloseStatusDescription { get; set; }
 		}
 
+		private ConnectionManager _connectionManager;
 		private WebSocket _socket;
 
 		private ConcurrentQueue<ArraySegment<byte>> _outgoingMessages = new ConcurrentQueue<ArraySegment<byte>>();
@@ -36,8 +38,9 @@ namespace Bombardel.CurveNet.Server.WebSockets
 		private ILogger<Connection> _logger;
 
 
-		public Connection(WebSocket socket, int bufferSize)
+		public Connection(ConnectionManager connectionManager, WebSocket socket, int bufferSize)
 		{
+			_connectionManager = connectionManager;
 			_socket = socket;
 			_bufferSize = bufferSize;
 			_inBuffer = new byte[_bufferSize];
@@ -140,6 +143,10 @@ namespace Bombardel.CurveNet.Server.WebSockets
 
 			}
 
+		}
+
+		public void Send(byte[] message) {
+			_outgoingMessages.Enqueue(new ArraySegment<byte>(message));
 		}
 
 		public void Send(ArraySegment<byte> message)

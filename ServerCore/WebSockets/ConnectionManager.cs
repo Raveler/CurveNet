@@ -55,7 +55,7 @@ namespace Bombardel.CurveNet.Server.WebSockets
 		public async Task OpenConnection(WebSocket socket)
 		{
 			// initialize the connection
-			Connection connection = new Connection(socket, _receiveBufferSize);
+			Connection connection = new Connection(this, socket, _receiveBufferSize);
 			IConnectionHandler handler = _connectionHandlerFactory.CreateHandler(connection);
 			_connections.Add(connection);
 

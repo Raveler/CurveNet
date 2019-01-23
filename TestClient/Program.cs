@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using WebSocketSharp;
 
@@ -20,8 +21,16 @@ namespace TestClient
 				connected = TryConnect(out socket);
 			}
 
-			socket.Send("BALUS");
-			Console.WriteLine("Written...");
+			ServerConnection connection = new ServerConnection(socket);
+
+			Game game = new Game(connection);
+
+			while (!connection.IsClosed())
+			{
+				connection.Update();
+				Thread.Sleep(1);
+			}
+
 			Console.ReadKey(true);
 		}
 
@@ -30,8 +39,6 @@ namespace TestClient
 			try
 			{
 				WebSocket ws = new WebSocket("ws://localhost:54008/ws");
-				ws.OnMessage += (sender, e) =>
-					Console.WriteLine("Laputa says: " + e.Data);
 
 				ws.OnError += Ws_OnError;
 				ws.Connect();

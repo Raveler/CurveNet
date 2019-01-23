@@ -1,6 +1,4 @@
-using Bombardel.CurveNet.Server.WebSockets;
-
-namespace Bombardel.CurveNet.Server.Sessions.Outgoing
+namespace Bombardel.CurveNet.Shared.ServerMessages
 {
 	public class ProtocolErrorMessage
 	{

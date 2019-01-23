@@ -1,5 +1,5 @@
-using Bombardel.CurveNet.Server.Sessions.Incoming;
 using Bombardel.CurveNet.Server.WebSockets;
+using Bombardel.CurveNet.Shared.ClientMessages;
 using System;
 using System.Collections.Generic;
 
@@ -32,29 +32,32 @@ namespace Bombardel.CurveNet.Server.Sessions
 
 		}
 
-		public void JoinRoom(string connection, JoinRoomEvent evt)
+		public void JoinRoom(ConnectionHandler client, string roomName)
 		{
-			string roomName = evt.name;
 			Room room = GetRoom(roomName);
-			room.AddPlayer(connection);
+			room.AddClient(client);
 		}
 
 		private Room GetRoom(string roomName)
 		{
 			if (!_rooms.ContainsKey(roomName))
 			{
-				_rooms.Add(roomName, new Room());
+				_rooms.Add(roomName, new Room(roomName));
 			}
 
 			Room room = _rooms[roomName];
 			return room;
 		}
 
-		public void LeaveRoom(string connection, LeaveRoomEvent evt)
+		public void LeaveRoom(ConnectionHandler client, string roomName)
 		{
-
+			Room room = GetRoom(roomName);
+			room.RemoveClient(client);
 		}
 
-
+		public void ListRooms(ConnectionHandler client)
+		{
+			throw new NotImplementedException();
+		}
 	}
 }
