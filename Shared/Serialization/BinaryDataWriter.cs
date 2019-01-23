@@ -47,10 +47,53 @@ namespace Bombardel.CurveNet.Shared.Serialization
 			_writer.Write(value);
 		}
 
+		public void Write(ISerializable value)
+		{
+			value.Serialize(this);
+		}
+
 		public void Write(byte[] data)
 		{
 			_writer.Write(data.Length);
 			_writer.Write(data);
+		}
+
+		public void Write(List<int> list)
+		{
+			Write(list, Write);
+		}
+
+		public void Write(List<float> list)
+		{
+			Write(list, Write);
+		}
+
+		public void Write(List<string> list)
+		{
+			Write(list, Write);
+		}
+
+		public void Write(List<byte> list)
+		{
+			Write(list, Write);
+		}
+
+		public void Write<T>(List<T> list) where T : ISerializable
+		{
+			Write(list.Count);
+			for (int i = 0; i < list.Count; ++i)
+			{
+				list[i].Serialize(this);
+			}
+		}
+
+		private void Write<T>(List<T> list, Action<T> itemWriter)
+		{
+			Write(list.Count);
+			for (int i = 0; i < list.Count; ++i)
+			{
+				itemWriter(list[i]);
+			}
 		}
 	}
 }

@@ -9,12 +9,14 @@ namespace Bombardel.CurveNet.Shared.Client
 
 	public interface IClient
 	{
-		void SendRoomData(RoomData roomData);
+		void OnRoomData(RoomData roomData);
 
-		void SendNewClient(RoomEventData newClient);
+		void OnNewClient(RoomEventData newClient);
 
-		void SendRemoveClient(RoomEventData deadClient);
+		void OnClientRemoved(RoomEventData deadClient);
 
-		void SendProtocolError(ProtocolError error);
+		void OnProtocolError(ProtocolError error);
+
+		void OnObjectCreated(ObjectData data);
 	}
 }

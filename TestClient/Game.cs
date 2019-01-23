@@ -1,6 +1,8 @@
 ﻿using Bombardel.CurveNet.Server.Sessions;
 using Bombardel.CurveNet.Shared.Client;
 using Bombardel.CurveNet.Shared.ClientMessages;
+using Bombardel.CurveNet.Shared.Curves;
+using Bombardel.CurveNet.Shared.Server;
 using Bombardel.CurveNet.Shared.ServerMessages;
 using System;
 using System.Collections.Generic;
@@ -33,9 +35,15 @@ namespace TestClient
 			connection.Server.LeaveRoom("TEST");
 			connection.Server.LeaveRoom("TEST");
 			connection.Server.JoinRoom("TEST2");
+
+			NewObjectConfig config = new NewObjectConfig();
+			config.curves.Add(new StringCurveConfig(CurveType.Step, "Walter"));
+			config.curves.Add(new IntCurveConfig(CurveType.Step, 20));
+			config.curves.Add(new FloatCurveConfig(CurveType.Linear, 5.0f));
+			connection.Server.CreateObject(config);
 		}
 
-		public void SendRoomData(RoomData roomData)
+		public void OnRoomData(RoomData roomData)
 		{
 			Console.WriteLine("Roomdata for " + roomData.roomName + ":");
 			for (int i = 0; i < roomData.clients.Count; ++i)
@@ -44,19 +52,27 @@ namespace TestClient
 			}
 		}
 
-		public void SendNewClient(RoomEventData newClient)
+		public void OnNewClient(RoomEventData newClient)
 		{
 			Console.WriteLine("Player " + newClient.client.id + " joined room " + newClient.roomName + "!");
 		}
 
-		public void SendRemoveClient(RoomEventData deadClient)
+		public void OnClientRemoved(RoomEventData deadClient)
 		{
 			Console.WriteLine("Player " + deadClient.client.id + " left room " + deadClient.roomName + "!");
 		}
 
-		public void SendProtocolError(ProtocolError error)
+		public void OnProtocolError(ProtocolError error)
 		{
 			Console.WriteLine("PROTOCOL ERROR: " + error + " ( " + error.GetDescription() + ")");
+		}
+
+		public void OnObjectCreated(ObjectData data)
+		{
+			Console.WriteLine("CREATED A NEW OBJECT!!!!!!!!!");
+			Console.WriteLine("Id: " + data.id);
+			Console.WriteLine("Owner: " + data.owner);
+			Console.WriteLine("Curves: " + data.curves.Count);
 		}
 	}
 }

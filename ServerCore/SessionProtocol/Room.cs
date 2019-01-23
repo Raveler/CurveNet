@@ -25,14 +25,14 @@ namespace Bombardel.CurveNet.Server.Sessions
 			// send to all players in the room that we have a new member
 			for (int i = 0; i < _members.Count; ++i)
 			{
-				_members[i].Connection.SendNewClient(GetRoomEventData(client));
+				_members[i].Connection.OnNewClient(GetRoomEventData(client));
 			}
 
 			// actually add the client
 			_members.Add(client);
 
 			// send the full room data to the new member
-			client.Connection.SendRoomData(GetRoomData());
+			client.Connection.OnRoomData(GetRoomData());
 		}
 
 		public void RemoveClient(ConnectionHandler client)
@@ -42,7 +42,7 @@ namespace Bombardel.CurveNet.Server.Sessions
 			// the client himself must receive this message as well, so we send it first
 			for (int i = 0; i < _members.Count; ++i)
 			{
-				_members[i].Connection.SendRemoveClient(GetRoomEventData(client));
+				_members[i].Connection.OnClientRemoved(GetRoomEventData(client));
 			}
 
 			// actually remove the client

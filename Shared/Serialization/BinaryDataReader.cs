@@ -39,5 +39,49 @@ namespace Bombardel.CurveNet.Shared.Serialization
 		{
 			return _reader.ReadString();
 		}
+
+		public List<byte> ReadByteList()
+		{
+			return ReadList(ReadByte);
+		}
+
+		public List<int> ReadIntList()
+		{
+			return ReadList(ReadInt);
+		}
+
+		public List<float> ReadFloatList()
+		{
+			return ReadList(ReadFloat);
+		}
+
+		public List<string> ReadStringList()
+		{
+			return ReadList(ReadString);
+		}
+
+		private List<T> ReadList<T>(Func<T> itemReader)
+		{
+			int n = ReadInt();
+			List<T> list = new List<T>();
+			for (int i = 0; i < n; i++)
+			{
+				list.Add(itemReader());
+			}
+			return list;
+		}
+
+		public List<T> ReadList<T>() where T : ISerializable, new()
+		{
+			int n = ReadInt();
+			List<T> list = new List<T>();
+			for (int i = 0; i < n; i++)
+			{
+				T instance = new T();
+				instance.Deserialize(this);
+				list.Add(instance);
+			}
+			return list;
+		}
 	}
 }

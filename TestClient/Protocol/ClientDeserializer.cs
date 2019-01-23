@@ -27,59 +27,28 @@ namespace Bombardel.CurveNet.Shared.Client
 			switch (type)
 			{
 				case 0:
-					ReadNewClient(reader);
+					_client.OnNewClient(Serializer.Deserialize<RoomEventData>(reader));
 					break;
 
 				case 1:
-					ReadRemoveClient(reader);
+					_client.OnClientRemoved(Serializer.Deserialize<RoomEventData>(reader));
 					break;
 
 				case 2:
-					ReadRoomData(reader);
+					_client.OnRoomData(Serializer.Deserialize<RoomData>(reader));
 					break;
 
 				case 3:
-					ReadProtocolError(reader);
+					_client.OnProtocolError((ProtocolError)reader.ReadInt());
+					break;
+
+				case 4:
+					_client.OnObjectCreated(Serializer.Deserialize<ObjectData>(reader));
 					break;
 
 				default:
 					throw new MessageTypeNotSupportedException();
 			}
-		}
-
-		private void ReadNewClient(BinaryDataReader reader)
-		{
-			_client.SendNewClient(new RoomEventData()
-			{
-				roomName = reader.ReadString(),
-				client = new ClientData()
-				{
-					id = reader.ReadString(),
-				}
-			});
-		}
-
-		private void ReadRemoveClient(BinaryDataReader reader)
-		{
-			_client.SendRemoveClient(new RoomEventData()
-			{
-				roomName = reader.ReadString(),
-				client = new ClientData()
-				{
-					id = reader.ReadString(),
-				}
-			});
-		}
-
-		private void ReadRoomData(BinaryDataReader reader)
-		{
-			string json = reader.ReadString();
-			_client.SendRoomData(JsonConvert.DeserializeObject<RoomData>(json));
-		}
-
-		private void ReadProtocolError(BinaryDataReader reader)
-		{
-			_client.SendProtocolError((ProtocolError)reader.ReadInt());
 		}
 	}
 }

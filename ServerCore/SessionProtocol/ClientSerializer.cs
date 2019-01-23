@@ -24,38 +24,43 @@ namespace Bombardel.CurveNet.Shared.Server
 			_writer = new BinaryDataWriter();
 		}
 
-		public void SendNewClient(RoomEventData newClient)
+		public void OnNewClient(RoomEventData newClient)
 		{
 			_writer.Reset();
 			_writer.Write((byte)0);
-			_writer.Write(newClient.roomName);
-			_writer.Write(newClient.client.id);
+			newClient.Serialize(_writer);
 			_connection.Send(_writer.ToArray());
 		}
 
-		public void SendRemoveClient(RoomEventData deadClient)
+		public void OnClientRemoved(RoomEventData deadClient)
 		{
 			_writer.Reset();
 			_writer.Write((byte)1);
-			_writer.Write(deadClient.roomName);
-			_writer.Write(deadClient.client.id);
+			deadClient.Serialize(_writer);
 			_connection.Send(_writer.ToArray());
 		}
 
-		public void SendRoomData(RoomData roomData)
+		public void OnRoomData(RoomData roomData)
 		{
 			_writer.Reset();
 			_writer.Write((byte)2);
-			string json = JsonConvert.SerializeObject(roomData);
-			_writer.Write(json);
+			roomData.Serialize(_writer);
 			_connection.Send(_writer.ToArray());
 		}
 
-		public void SendProtocolError(ProtocolError error)
+		public void OnProtocolError(ProtocolError error)
 		{
 			_writer.Reset();
 			_writer.Write((byte)3);
 			_writer.Write((int)error);
+			_connection.Send(_writer.ToArray());
+		}
+
+		public void OnObjectCreated(ObjectData data)
+		{
+			_writer.Reset();
+			_writer.Write((byte)4);
+			data.Serialize(_writer);
 			_connection.Send(_writer.ToArray());
 		}
 	}

@@ -40,6 +40,10 @@ namespace Bombardel.CurveNet.Shared.Server
 					ReadListRooms(reader);
 					break;
 
+				case 3:
+					ReadCreateObject(reader);
+					break;
+
 				default:
 					throw new MessageTypeNotSupportedException();
 			}
@@ -58,6 +62,12 @@ namespace Bombardel.CurveNet.Shared.Server
 		private void ReadListRooms(BinaryDataReader reader)
 		{
 			_server.ListRooms();
+		}
+
+		private void ReadCreateObject(BinaryDataReader reader)
+		{
+			NewObjectConfig objectConfig = Serializer.Deserialize<NewObjectConfig>(reader);
+			_server.CreateObject(objectConfig);
 		}
 	}
 }

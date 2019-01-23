@@ -4,7 +4,16 @@ using System.Linq;
 
 namespace Bombardel.CurveNet.Shared.Server
 {
+	public enum ServerCall
+	{
+		JoinRoom,
+		LeaveRoom,
+		ListRooms,
+		CreateObject,
+		AddObjectToRoom,
+		RemoveObjectFromRoom,
 
+	}
 	public interface IServer
 	{
 		void JoinRoom(string roomName);
@@ -12,7 +21,7 @@ namespace Bombardel.CurveNet.Shared.Server
 
 		void ListRooms();
 
-		void CreateObject(string objectId);
+		void CreateObject(NewObjectConfig objectConfig);
 		void RemoveObject(string objectId);
 
 		void AddObjectToRoom(string objectId, string roomName);

@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Bombardel.CurveNet.Server.WebSockets;
 using Bombardel.CurveNet.Shared.Client;
 using Bombardel.CurveNet.Shared.ClientMessages;
+using Bombardel.CurveNet.Shared.Serialization;
 using Bombardel.CurveNet.Shared.Server;
 using Bombardel.CurveNet.Shared.ServerMessages;
 using Microsoft.AspNetCore.Builder;
@@ -28,19 +29,19 @@ namespace Bombardel.CurveNet.Server.Sessions
 	public class ConnectionHandler : IConnectionHandler, IServer
 	{
 		public IClient Connection => _clientSerializer;
-		public string Id => _id;
+		public Id Id => _id;
 
 
 		private GameManager _gameManager;
 		private Connection _connection;
 		private ClientSerializer _clientSerializer;
 
-		private string _id;
+		private Id _id;
 
 		private ServerDeserializer _deserializer;
 
 
-		public ConnectionHandler(GameManager gameManager, Connection conn, string id)
+		public ConnectionHandler(GameManager gameManager, Connection conn, Id id)
 		{
 			_connection = conn;
 			_gameManager = gameManager;
@@ -61,11 +62,11 @@ namespace Bombardel.CurveNet.Server.Sessions
 				_deserializer.Deserialize(message);
 			}
 			catch (MessageTypeNotSupportedException) {
-				Connection.SendProtocolError(ProtocolError.InvalidMessageType);
+				Connection.OnProtocolError(ProtocolError.InvalidMessageType);
 			}
 			catch (ProtocolErrorException e)
 			{
-				Connection.SendProtocolError(e.error);
+				Connection.OnProtocolError(e.error);
 			}
 		}
 
@@ -84,6 +85,11 @@ namespace Bombardel.CurveNet.Server.Sessions
 		{
 			_gameManager.ListRooms(this);
 		}
+
+		public void CreateObject(NewObjectConfig config)
+		{
+			_gameManager.CreateObject(this, config);
+		}
 		
 		public void AddCurve(string objectId)
 		{
@@ -91,11 +97,6 @@ namespace Bombardel.CurveNet.Server.Sessions
 		}
 
 		public void AddObjectToRoom(string objectId, string roomName)
-		{
-			throw new NotImplementedException();
-		}
-
-		public void CreateObject(string objectId)
 		{
 			throw new NotImplementedException();
 		}

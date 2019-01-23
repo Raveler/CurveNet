@@ -1,5 +1,10 @@
 using Bombardel.CurveNet.Server.WebSockets;
+using Bombardel.CurveNet.Shared.Client;
 using Bombardel.CurveNet.Shared.ClientMessages;
+using Bombardel.CurveNet.Shared.Curves;
+using Bombardel.CurveNet.Shared.Objects;
+using Bombardel.CurveNet.Shared.Serialization;
+using Bombardel.CurveNet.Shared.Server;
 using System;
 using System.Collections.Generic;
 
@@ -8,25 +13,29 @@ namespace Bombardel.CurveNet.Server.Sessions
 
 	public class GameManager : IConnectionHandlerFactory
 	{
-		private Dictionary<string, ConnectionHandler> _connections = new Dictionary<string, ConnectionHandler>();
+		private Dictionary<Id, ConnectionHandler> _connections = new Dictionary<Id, ConnectionHandler>();
 
 		private Dictionary<string, Room> _rooms = new Dictionary<string, Room>();
 
+		private IdStore _clientIdStore = new IdStore();
+
+		private CurveStore _curveStore;
+		private ObjectStore _objectStore;
+
+
+		public GameManager()
+		{
+			_curveStore = new CurveStore();
+			_objectStore = new ObjectStore(_curveStore);
+		}
 
 		public IConnectionHandler CreateHandler(Connection connection)
 		{
-			string guid = CreateGUID();
-			ConnectionHandler conn = new ConnectionHandler(this, connection, guid);
-			_connections.Add(guid, conn);
+			ConnectionHandler conn = new ConnectionHandler(this, connection, _clientIdStore.GenerateId());
+			_connections.Add(conn.Id, conn);
 			return conn;
 		}
-
-		private string CreateGUID() {
-			string guid = Guid.NewGuid().ToString();
-			while (_connections.ContainsKey(guid)) guid = Guid.NewGuid().ToString();
-			return guid;
-		}
-
+		
 		public void CloseConnection(string connection)
 		{
 
@@ -53,6 +62,15 @@ namespace Bombardel.CurveNet.Server.Sessions
 		{
 			Room room = GetRoom(roomName);
 			room.RemoveClient(client);
+		}
+
+		public void CreateObject(ConnectionHandler client, NewObjectConfig config)
+		{
+			ObjectData data = _objectStore.CreateObject(config, client.Id);
+			foreach (ConnectionHandler otherClient in _connections.Values)
+			{
+				otherClient.Connection.OnObjectCreated(data);
+			}
 		}
 
 		public void ListRooms(ConnectionHandler client)

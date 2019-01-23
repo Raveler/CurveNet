@@ -15,6 +15,15 @@ namespace Bombardel.CurveNet.Shared.Serialization
 		void Write(string value);
 		void Write(byte[] data);
 
+		void Write(List<byte> list);
+		void Write(List<int> list);
+		void Write(List<float> list);
+		void Write(List<string> list);
+
+		void Write(ISerializable value);
+
+		void Write<T>(List<T> list) where T : ISerializable;
+
 		byte[] ToArray();
 	}
 }
