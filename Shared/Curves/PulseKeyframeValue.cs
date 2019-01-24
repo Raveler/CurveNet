@@ -8,22 +8,18 @@ namespace Bombardel.CurveNet.Shared.Curves
 {
 	public class PulseKeyframeValue : IKeyframeValue<PulseKeyframeValue>
 	{
-		private OnPulseDelegate _callback;
-
-
-		public PulseKeyframeValue(OnPulseDelegate callback)
-		{
-			_callback = callback;
-		}
 
 		public PulseKeyframeValue InterpolateTo(PulseKeyframeValue next, float t)
 		{
 			return this; // doesn't matter, isn't used anyway in the case of pulses
 		}
 
-		public void OnPassed()
+		public void Serialize(IDataWriter writer)
 		{
-			if (_empty != null) _callback();
+		}
+
+		public void Deserialize(IDataReader reader)
+		{
 		}
 
 		public static PulseKeyframeValue Empty
@@ -34,6 +30,6 @@ namespace Bombardel.CurveNet.Shared.Curves
 			}
 		}
 
-		private static PulseKeyframeValue _empty = new PulseKeyframeValue(null);
+		private static PulseKeyframeValue _empty = new PulseKeyframeValue();
 	}
 }

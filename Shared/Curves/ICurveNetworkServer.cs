@@ -8,7 +8,7 @@ namespace Bombardel.CurveNet.Shared.Curves
 {
 	public interface ICurveNetworkServer
 	{
-		void SubmitKeyframe(Id curveId, Keyframe keyframe);
+		void SubmitKeyframe(Id curveId, KeyframeData keyframe);
 
 		void SetClient(ICurveNetworkClient client);
 	}

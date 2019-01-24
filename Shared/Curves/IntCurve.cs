@@ -1,21 +1,21 @@
-using Bombardel.CurveNet.Shared.Curves;
 using Bombardel.CurveNet.Shared.Serialization;
 using Bombardel.CurveNet.Shared.ServerMessages;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Bombardel.CurveNet.Shared.Curves
 {
-
-	public class IntCurve : ICurve
+	public class IntCurve : ValueCurve<int, IntKeyframeValue>
 	{
-		int Value
+
+		public IntCurve(int initialValue, InterpolationType interpolationType = InterpolationType.Linear) : base(new IntKeyframeValue(initialValue), interpolationType)
 		{
-			get
-			{
-				return GetValue();
-			}
 		}
-		
+
+		protected override int GetValue(IntKeyframeValue value)
+		{
+			return value.Value;
+		}
 	}
 }

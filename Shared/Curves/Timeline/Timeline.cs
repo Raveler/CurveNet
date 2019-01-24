@@ -8,29 +8,36 @@ using System.Linq;
 
 namespace Bombardel.CurveNet.Shared.Curves
 {
-	public class Timeline<T> where T : IKeyframeValue<T>
+	public class Timeline<T> : ITimeline where T : IKeyframeValue<T>, new()
 	{
 		private float _time = 0.0f;
 
-		private List<Keyframe> _keyframes = new List<Keyframe>();
+		private List<Keyframe<T>> _keyframes = new List<Keyframe<T>>();
 
 		private int _prevKeyframe;
-		private IKeyframeValue<T> _value;
+		private T _value;
 
-		private IKeyframeValueListener _listener;
+		private IKeyframeValueListener<T> _listener;
+
+		private IInterpolator<T> _interpolator;
 
 
-		public Timeline(IKeyframeValueListener listener, IKeyframeValue initialValue)
+		public Timeline(IKeyframeValueListener<T> listener, T initialValue, IInterpolator<T> interpolator)
 		{
 			_listener = listener;
+			_interpolator = interpolator;
 
-			_keyframes.Add(new Keyframe(0.0f, initialValue));
+			_keyframes.Add(new Keyframe<T>(0.0f, initialValue));
 			ResetPrevKeyframe(); // should always set it to 0
 			UpdateValue();
 		}
 
-		public void AddKeyframe(Keyframe keyframe)
+		public void AddKeyframe(KeyframeData keyframeData)
 		{
+			// deserialize the keyframe
+			Keyframe<T> keyframe = new Keyframe<T>();
+			keyframe.Deserialize(keyframeData.bytes);
+
 			// Go backwards from the last keyframe, so that if the keyframe is later than the last one,
 			// we don't have to loop through all of them (this is the most common case).
 			// Because there is always a keyframe at time 0, this will always insert it.
@@ -99,13 +106,13 @@ namespace Bombardel.CurveNet.Shared.Curves
 		private void UpdateValue()
 		{
 			// calculate the current value, possibly interpolated if linear
-			IKeyframeValue value = CalculateValue();
+			T value = CalculateValue();
 
 			// set it
 			_listener.SetValue(value);
 		}
 
-		private IKeyframeValue CalculateValue()
+		private T CalculateValue()
 		{
 			// we are beyond the last keyframe - just return the value of that keyframe
 			if (_prevKeyframe == _keyframes.Count - 1)
@@ -116,10 +123,12 @@ namespace Bombardel.CurveNet.Shared.Curves
 			// Interpolate between the two current keyframes to acquire the current value.
 			// There MUST be two keyframes at least to get here, otherwise the above condition
 			// would trigger.
-			Keyframe prevKeyframe = _keyframes[_prevKeyframe];
-			Keyframe nextKeyframe = _keyframes[_prevKeyframe + 1];
+			Keyframe<T> prevKeyframe = _keyframes[_prevKeyframe];
+			Keyframe<T> nextKeyframe = _keyframes[_prevKeyframe + 1];
 			float t = (_time - prevKeyframe.Time) / (nextKeyframe.Time - prevKeyframe.Time);
-			return prevKeyframe.Value.InterpolateTo(nextKeyframe.Value, t);
+
+			// Use the interpolator to actually interpolate - might do some shenanigans internally (such as step function).
+			return _interpolator.Interpolate(prevKeyframe.Value, nextKeyframe.Value, t);
 		}
 
 	}
@@ -143,6 +152,12 @@ namespace Bombardel.CurveNet.Shared.Curves
 		void Test(T v)
 		{
 			v.X(v);
+			Walter<T> w = new Walter<T>();
 		}
+	}
+
+	public class Walter<T>
+	{
+		IBla<T> val;
 	}
 }

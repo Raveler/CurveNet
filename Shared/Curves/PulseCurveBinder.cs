@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Bombardel.CurveNet.Shared.Curves
 {
-	public class PulseCurveBinder : IKeyframeValueListener
+	public class PulseCurveBinder : IKeyframeValueListener<PulseKeyframeValue>
 	{
 		private Action _onPulseReceived;
 
@@ -19,21 +19,21 @@ namespace Bombardel.CurveNet.Shared.Curves
 		{
 			_id = curveId;
 			_curveStore = curveStore;
-			curveStore.RegisterCurve(curveId, this, PulseKeyframeValue.Empty);
+			curveStore.RegisterCurve(curveId, this, PulseKeyframeValue.Empty, InterpolationType.Linear.GetInterpolator<PulseKeyframeValue>());
 			_onPulseReceived = onPulseReceived;
 		}
 
 		public void SendPulseToServer()
 		{
-			_curveStore.SubmitKeyframe(_id, new Keyframe(_curveStore.Time, PulseKeyframeValue.Empty));
+			_curveStore.SubmitKeyframe(_id, new KeyframeData(new Keyframe<PulseKeyframeValue>(_curveStore.Time, PulseKeyframeValue.Empty)));
 		}
 
-		public void SetValue(IKeyframeValue value)
+		public void SetValue(PulseKeyframeValue value)
 		{
 			// pulse curves don't care about values
 		}
 
-		public void SetKeyframePassed(IKeyframeValue value)
+		public void SetKeyframePassed(PulseKeyframeValue value)
 		{
 			_onPulseReceived();
 		}

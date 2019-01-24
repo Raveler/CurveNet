@@ -26,18 +26,18 @@ namespace Bombardel.CurveNet.Shared.Curves
 			_networkInterface = networkInterface;
 		}
 
-		public void RegisterCurve(Id curveId, IKeyframeValueListener listener, IKeyframeValue initialValue)
+		public void RegisterCurve<T>(Id curveId, IKeyframeValueListener<T> listener, T initialValue, IInterpolator<T> interpolator) where T : IKeyframeValue<T>, new()
 		{
-			_timelineStore.CreateTimeline(curveId, listener, initialValue);
+			_timelineStore.CreateTimeline(curveId, listener, initialValue, interpolator);
 		}
 
-		public void AddKeyframe(Id curveId, Keyframe keyframe)
+		public void AddKeyframe(Id curveId, KeyframeData keyframe)
 		{
 			// add the keyframe to the timeline
 			_timelineStore.AddKeyframe(curveId, keyframe);
 		}
 
-		public void SubmitKeyframe(Id curveId, Keyframe keyframe)
+		public void SubmitKeyframe(Id curveId, KeyframeData keyframe)
 		{
 			// add the keyframe to the timeline
 			AddKeyframe(curveId, keyframe);

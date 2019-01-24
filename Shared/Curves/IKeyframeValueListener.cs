@@ -8,8 +8,8 @@ namespace Bombardel.CurveNet.Shared.Curves
 {
 	public interface IKeyframeValueListener<T> where T : IKeyframeValue<T>
 	{
-		void SetValue(IKeyframeValue<T> value);
+		void SetValue(T value);
 
-		void SetKeyframePassed(IKeyframeValue<T> value);
+		void SetKeyframePassed(T value);
 	}
 }

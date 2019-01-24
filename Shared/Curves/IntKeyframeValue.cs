@@ -8,16 +8,34 @@ namespace Bombardel.CurveNet.Shared.Curves
 {
 	public class IntKeyframeValue : IKeyframeValue<IntKeyframeValue>
 	{
+		public int Value => _value;
+
+
 		private int _value;
 
+
+		public IntKeyframeValue()
+		{
+		}
 		public IntKeyframeValue(int value)
 		{
 			_value = value;
 		}
 
-		public IKeyframeValue InterpolateTo(IKeyframeValue next, float t)
+		public void Deserialize(IDataReader reader)
 		{
-			return _value + (next
+			_value = reader.ReadInt();
+		}
+
+		public IntKeyframeValue InterpolateTo(IntKeyframeValue next, float t)
+		{
+			int newValue = (int)Math.Round(_value + (next._value - _value) * t);
+			return new IntKeyframeValue(newValue);
+		}
+
+		public void Serialize(IDataWriter writer)
+		{
+			writer.Write(_value);
 		}
 	}
 }
