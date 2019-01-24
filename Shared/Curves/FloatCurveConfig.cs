@@ -12,15 +12,13 @@ namespace Bombardel.CurveNet.Shared.Curves
 		public float defaultValue;
 
 
-		public FloatCurveConfig(CurveType type)
+		public FloatCurveConfig()
 		{
-			this.type = type;
 			this.valueType = CurveValueType.Float;
 		}
 
-		public FloatCurveConfig(CurveType type, float defaultValue)
+		public FloatCurveConfig(float defaultValue)
 		{
-			this.type = type;
 			this.valueType = CurveValueType.Float;
 			this.defaultValue = defaultValue;
 		}

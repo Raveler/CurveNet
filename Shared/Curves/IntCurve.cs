@@ -13,6 +13,21 @@ namespace Bombardel.CurveNet.Shared.Curves
 		{
 		}
 
+		public override void ApplyConfig(CurveConfig config)
+		{
+			SetNewValue(new IntKeyframeValue(((IntCurveConfig)config).defaultValue));
+		}
+
+		public override CurveConfig GetConfig()
+		{
+			return new IntCurveConfig(Value);
+		}
+
+		protected override IntKeyframeValue GetKeyframeValue(int value)
+		{
+			return new IntKeyframeValue(value);
+		}
+
 		protected override int GetValue(IntKeyframeValue value)
 		{
 			return value.Value;

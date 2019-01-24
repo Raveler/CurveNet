@@ -1,3 +1,4 @@
+using Bombardel.CurveNet.Shared.Curves;
 using Bombardel.CurveNet.Shared.Serialization;
 using Bombardel.CurveNet.Shared.ServerMessages;
 using System.Collections.Generic;
@@ -6,19 +7,19 @@ using System.Linq;
 namespace Bombardel.CurveNet.Shared.Curves
 {
 
-	public class StringCurveConfig : CurveConfig
+	public class IntCurveConfig : CurveConfig
 	{
-		public string defaultValue;
+		public int defaultValue;
 
 
-		public StringCurveConfig()
+		public IntCurveConfig()
 		{
-			this.valueType = CurveValueType.String;
+			this.valueType = CurveValueType.Int;
 		}
 
-		public StringCurveConfig(string defaultValue)
+		public IntCurveConfig(int defaultValue)
 		{
-			this.valueType = CurveValueType.String;
+			this.valueType = CurveValueType.Int;
 			this.defaultValue = defaultValue;
 		}
 
@@ -29,7 +30,7 @@ namespace Bombardel.CurveNet.Shared.Curves
 
 		public override void DeserializeDefaultValue(IDataReader reader)
 		{
-			defaultValue = reader.ReadString();
+			defaultValue = reader.ReadInt();
 		}
 
 		public override void SerializeDefaultValue(IDataWriter writer)

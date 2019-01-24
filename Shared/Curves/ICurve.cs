@@ -8,10 +8,12 @@ namespace Bombardel.CurveNet.Shared.Curves
 {
 	public interface ICurve
 	{
-		Id Id { get; }
-
 		void ApplyConfig(CurveConfig config);
 
 		CurveConfig GetConfig();
+
+		void RegisterLocal(CurveStore curveStore);
+
+		void RegisterRemote(CurveStore curveStore, Id remoteId);
 	}
 }

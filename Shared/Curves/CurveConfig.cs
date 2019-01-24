@@ -12,27 +12,25 @@ namespace Bombardel.CurveNet.Shared.Curves
 
 	public abstract class CurveConfig : ISerializable, ICurveConfig
 	{
-		public CurveType type;
 		public CurveValueType valueType;
 
 
 		public static CurveConfig DeserializeCurveConfig(IDataReader reader)
 		{
-			CurveType type = (CurveType)reader.ReadByte();
 			CurveValueType valueType = (CurveValueType)reader.ReadByte();
 
 			CurveConfig config = null;
 			switch (valueType) {
 				case CurveValueType.Int:
-					config = new IntCurveConfig(type);
+					config = new IntCurveConfig();
 					break;
 
 				case CurveValueType.Float:
-					config = new FloatCurveConfig(type);
+					config = new FloatCurveConfig();
 					break;
 
 				case CurveValueType.String:
-					config = new StringCurveConfig(type);
+					config = new StringCurveConfig();
 					break;
 
 				default:
@@ -51,7 +49,6 @@ namespace Bombardel.CurveNet.Shared.Curves
 
 		public void Serialize(IDataWriter writer)
 		{
-			writer.Write((byte)type);
 			writer.Write((byte)valueType);
 			SerializeDefaultValue(writer);
 		}

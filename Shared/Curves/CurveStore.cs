@@ -15,8 +15,8 @@ namespace Bombardel.CurveNet.Shared.Curves
 
 		private TimelineStore _timelineStore = new TimelineStore();
 
-		private Dictionary<Id, PulseCurveBinder> _idToCurve = new Dictionary<Id, PulseCurveBinder>();
-		private List<PulseCurveBinder> _curves = new List<PulseCurveBinder>();
+		private Dictionary<NetworkedId, Id> _networkedIdToInternalId = new Dictionary<NetworkedId, Id>();
+		private IdStore _internalCurveIdStore = new IdStore();
 
 		private ICurveNetworkServer _networkInterface;
 
@@ -26,24 +26,59 @@ namespace Bombardel.CurveNet.Shared.Curves
 			_networkInterface = networkInterface;
 		}
 
-		public void RegisterCurve<T>(Id curveId, IKeyframeValueListener<T> listener, T initialValue, IInterpolator<T> interpolator) where T : IKeyframeValue<T>, new()
+		public Id RegisterLocalCurve<T>(IKeyframeValueListener<T> listener, T initialValue, IInterpolator<T> interpolator) where T : IKeyframeValue<T>, new()
 		{
+			// generate a unique id for the curve internally, that will NOT be used for any outside
+			// communication.
+			Id curveId = _internalCurveIdStore.GenerateId();
 			_timelineStore.CreateTimeline(curveId, listener, initialValue, interpolator);
+
+			// Since this is a new curve, we don't have a matching remote id yet to map to the internal id.
+			// We therefore generate a local placeholder id that will be sent to the server to ask for
+			// the final remote id.
+			NetworkedId localId = new NetworkedId(RemoteStatus.Local, curveId);
+			_networkedIdToInternalId.Add(localId, curveId);
+			return curveId;
 		}
 
-		public void AddKeyframe(Id curveId, KeyframeData keyframe)
+		public void RegisterRemoteCurve<T>(Id remoteId, IKeyframeValueListener<T> listener, T initialValue, IInterpolator<T> interpolator) where T : IKeyframeValue<T>, new()
 		{
-			// add the keyframe to the timeline
-			_timelineStore.AddKeyframe(curveId, keyframe);
+			// generate a unique id for the curve internally, that will NOT be used for any outside
+			// communication.
+			Id curveId = _internalCurveIdStore.GenerateId();
+			_timelineStore.CreateTimeline(curveId, listener, initialValue, interpolator);
+
+			// Since this is a remote curve, we create a remote id and map it onto our internal id.
+			NetworkedId remoteNetworkedId = new NetworkedId(RemoteStatus.Remote, remoteId);
+			_networkedIdToInternalId.Add(remoteNetworkedId, curveId);
+		}
+		
+		public void AddKeyframeToRemoteCurve(Id remoteId, KeyframeData keyframe)
+		{
+			// Find the curve id by mapping the remote id.
+			NetworkedId networkedId = new NetworkedId(RemoteStatus.Remote, remoteId);
+
+			// add the keyframe to the right curve.
+			AddKeyframe(networkedId, keyframe);
 		}
 
-		public void SubmitKeyframe(Id curveId, KeyframeData keyframe)
+		public void SubmitKeyframeToServer(Id localId, KeyframeData keyframe)
 		{
-			// add the keyframe to the timeline
-			AddKeyframe(curveId, keyframe);
+			// generate the networked id to find the curve internally.
+			NetworkedId networkedId = new NetworkedId(RemoteStatus.Local, localId);
+			AddKeyframe(networkedId, keyframe);
 
 			// send over the network to the server so that all the others will receive it as well
-			_networkInterface.SubmitKeyframe(curveId, keyframe);
+			_networkInterface.SubmitLocalKeyframeToServer(localId, keyframe);
+		}
+
+		private void AddKeyframe(NetworkedId networkedId, KeyframeData keyframe)
+		{
+			if (!_networkedIdToInternalId.ContainsKey(networkedId)) throw new ArgumentException("No curve found with id " + networkedId);
+			Id curveId = _networkedIdToInternalId[networkedId];
+
+			// add the keyframe to the timeline
+			_timelineStore.AddKeyframe(curveId, keyframe);
 		}
 
 		public void SetTime(float time)

@@ -8,6 +8,6 @@ namespace Bombardel.CurveNet.Shared.Curves
 {
 	public interface ICurveNetworkClient
 	{
-		void AddKeyframe(Id curveId, KeyframeData keyframe);
+		void AddKeyframeToRemoteCurve(Id remoteId, KeyframeData keyframe);
 	}
 }

@@ -15,17 +15,26 @@ namespace Bombardel.CurveNet.Shared.Curves
 		private Id _id;
 
 
-		public PulseCurveBinder(CurveStore curveStore, Id curveId, Action onPulseReceived)
+		public PulseCurveBinder(CurveStore curveStore, Action onPulseReceived)
 		{
-			_id = curveId;
 			_curveStore = curveStore;
-			curveStore.RegisterCurve(curveId, this, PulseKeyframeValue.Empty, InterpolationType.Linear.GetInterpolator<PulseKeyframeValue>());
 			_onPulseReceived = onPulseReceived;
+		}
+
+		public void RegisterLocal()
+		{
+			_id = _curveStore.RegisterLocalCurve(this, PulseKeyframeValue.Empty, InterpolationType.Linear.GetInterpolator<PulseKeyframeValue>());
+		}
+
+		public void RegisterRemote(Id id)
+		{
+			_id = id;
+			_curveStore.RegisterRemoteCurve(id, this, PulseKeyframeValue.Empty, InterpolationType.Linear.GetInterpolator<PulseKeyframeValue>());
 		}
 
 		public void SendPulseToServer()
 		{
-			_curveStore.SubmitKeyframe(_id, new KeyframeData(new Keyframe<PulseKeyframeValue>(_curveStore.Time, PulseKeyframeValue.Empty)));
+			_curveStore.SubmitKeyframeToServer(_id, new KeyframeData(new Keyframe<PulseKeyframeValue>(_curveStore.Time, PulseKeyframeValue.Empty)));
 		}
 
 		public void SetValue(PulseKeyframeValue value)

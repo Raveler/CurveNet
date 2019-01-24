@@ -17,5 +17,20 @@ namespace Bombardel.CurveNet.Shared.Curves
 		{
 			return value.Value;
 		}
+
+		public override void ApplyConfig(CurveConfig config)
+		{
+			SetNewValue(new FloatKeyframeValue(((FloatCurveConfig)config).defaultValue));
+		}
+
+		public override CurveConfig GetConfig()
+		{
+			return new FloatCurveConfig(Value);
+		}
+
+		protected override FloatKeyframeValue GetKeyframeValue(float value)
+		{
+			return new FloatKeyframeValue(value);
+		}
 	}
 }

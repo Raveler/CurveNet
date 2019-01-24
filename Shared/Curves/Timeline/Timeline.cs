@@ -15,7 +15,6 @@ namespace Bombardel.CurveNet.Shared.Curves
 		private List<Keyframe<T>> _keyframes = new List<Keyframe<T>>();
 
 		private int _prevKeyframe;
-		private T _value;
 
 		private IKeyframeValueListener<T> _listener;
 
@@ -130,34 +129,5 @@ namespace Bombardel.CurveNet.Shared.Curves
 			// Use the interpolator to actually interpolate - might do some shenanigans internally (such as step function).
 			return _interpolator.Interpolate(prevKeyframe.Value, nextKeyframe.Value, t);
 		}
-
-	}
-
-
-	public interface IBla<T>
-	{
-		void X(T other);
-	}
-
-	public class Bla : IBla<Bla>
-	{
-		public void X(Bla other)
-		{
-			throw new NotImplementedException();
-		}
-	}
-
-	public class GenBla<T> where T : IBla<T>
-	{
-		void Test(T v)
-		{
-			v.X(v);
-			Walter<T> w = new Walter<T>();
-		}
-	}
-
-	public class Walter<T>
-	{
-		IBla<T> val;
 	}
 }

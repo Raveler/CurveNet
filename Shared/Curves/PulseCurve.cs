@@ -8,7 +8,7 @@ namespace Bombardel.CurveNet.Shared.Curves
 {
 	public delegate void OnPulseDelegate();
 
-	public class PulseCurve
+	public class PulseCurve : ICurve
 	{
 		private OnPulseDelegate _onPulse;
 
@@ -20,23 +20,35 @@ namespace Bombardel.CurveNet.Shared.Curves
 			_onPulse = OnPulse;
 		}
 
+		public void ApplyConfig(CurveConfig config)
+		{
+			// does nothing
+		}
+
+		public CurveConfig GetConfig()
+		{
+			return new IntCurveConfig(0);
+		}
+
 		// we pulse ourself - we MUST be the owner of this object!
 		public void Pulse()
 		{
-			_onPulse();
-			if (_binder == null) throw new InvalidOperationException("Object is not yet registered at the networking system, so curves are not available for use yet");
+			if (_binder == null) throw new InvalidOperationException("Object is not yet registered at the networking system, so curves are not available for use yet.");
 
 			// TODO send to server
 			_binder.SendPulseToServer();
 		}
 
-		public void Register(CurveStore curveStore, PulseCurveData data)
+		public void RegisterLocal(CurveStore curveStore)
 		{
-			// get the id in the store that corresponds to this curve
-			Id id = data.id;
+			_binder = new PulseCurveBinder(curveStore, OnNetworkPulseReceived);
+			_binder.RegisterLocal();
+		}
 
-			// create a binder that ties this curve to the corresponding data structure in the store
-			_binder = new PulseCurveBinder(curveStore, id, OnNetworkPulseReceived);
+		public void RegisterRemote(CurveStore curveStore, Id remoteId)
+		{
+			_binder = new PulseCurveBinder(curveStore, OnNetworkPulseReceived);
+			_binder.RegisterRemote(remoteId);
 		}
 
 		// we received a pulse instruction from the server, so the owner previously triggered a pulse

@@ -9,16 +9,26 @@ using System.Threading.Tasks;
 
 namespace Bombardel.CurveNet.Client.Instantiate
 {
-	public delegate T InstantiatorConstructorDelegate<T>() where T : IInstantiable;
-
     public class Instantiator<T> : IInstantiator where T : IInstantiable
 	{
-		private InstantiatorConstructorDelegate<T> _constructor;
+		public int Id => _id;
 
 
-		public Instantiator(InstantiatorConstructorDelegate<T> constructor)
+		private Constructor<T> _constructor;
+
+		private int _id;
+
+
+		public Instantiator(Constructor<T> constructor, int id)
 		{
 			_constructor = constructor;
+			_id = id;
+		}
+
+		public T Instantiate()
+		{
+			T obj = _constructor();
+			return obj;
 		}
 
 		public void Spawn(Id objectId, Id ownerId, List<CurveConfig> curveConfigs)
@@ -36,8 +46,13 @@ namespace Bombardel.CurveNet.Client.Instantiate
 			for (int i = 0; i < curves.Count; ++i)
 			{
 				curves[i].ApplyConfig(curveConfigs[i]);
+				curves[i].RegisterRemote(_curveStore, 
 			}
 
+			// register all the curves at the curve store
+
+			// let the object know that we are fully ready
+			obj.Init();
 		}
 	}
 }

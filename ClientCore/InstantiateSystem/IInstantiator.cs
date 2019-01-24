@@ -11,6 +11,6 @@ namespace Bombardel.CurveNet.Client.Instantiate
 {
     public interface IInstantiator
 	{
-		void Spawn(Id objectId, Id ownerId, IEnumerable<CurveConfig> curves);
+		void Spawn(Id objectId, Id ownerId, List<CurveConfig> curves);
 	}
 }

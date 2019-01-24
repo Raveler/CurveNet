@@ -49,7 +49,17 @@ namespace Bombardel.CurveNet.Shared.Serialization
 				else multiplier *= 128;
 			}
 		}
-		
+
+		public static bool operator==(Id id1, Id id2)
+		{
+			return id1.Equals(id2);
+		}
+
+		public static bool operator !=(Id id1, Id id2)
+		{
+			return !id1.Equals(id2);
+		}
+
 		public override bool Equals(object obj)
 		{
 			if (!(obj is Id)) return false;

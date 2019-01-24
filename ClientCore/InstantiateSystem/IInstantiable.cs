@@ -12,5 +12,7 @@ namespace Bombardel.CurveNet.Client.Instantiate
 	{
 
 		IEnumerable<ICurve> GetSynchedCurves();
+
+		void Init();
     }
 }
