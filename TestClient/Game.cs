@@ -73,6 +73,8 @@ namespace TestClient
 			Console.WriteLine("Id: " + data.id);
 			Console.WriteLine("Owner: " + data.owner);
 			Console.WriteLine("Curves: " + data.curves.Count);
+
+
 		}
 	}
 }

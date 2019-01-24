@@ -6,12 +6,8 @@ using System.Linq;
 
 namespace Bombardel.CurveNet.Shared.Curves
 {
-	public interface ICurve
+	public interface IKeyframeValue<T>
 	{
-		Id Id { get; }
-
-		void ApplyConfig(CurveConfig config);
-
-		CurveConfig GetConfig();
+		T InterpolateTo(T next, float t);
 	}
 }

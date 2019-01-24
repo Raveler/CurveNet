@@ -5,17 +5,15 @@ using System.IO;
 namespace Bombardel.CurveNet.Shared.Serialization
 {
 
-	public class Id : IEquatable<Id>, IComparable<Id>, ISerializable
+	public struct Id : IEquatable<Id>, IComparable<Id>, ISerializable
 	{
-		private readonly byte flagMask = 0b1000_0000;
-		private readonly byte dataMask = 0b0111_1111;
+		private const byte flagMask = 0b1000_0000;
+		private const byte dataMask = 0b0111_1111;
 
 
-		private int _id = 0;
+		private int _id;
+		
 
-		public Id()
-		{
-		}
 		public Id(int id)
 		{
 			_id = id;

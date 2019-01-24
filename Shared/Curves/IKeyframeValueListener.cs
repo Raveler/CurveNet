@@ -6,12 +6,10 @@ using System.Linq;
 
 namespace Bombardel.CurveNet.Shared.Curves
 {
-	public interface ICurve
+	public interface IKeyframeValueListener<T> where T : IKeyframeValue<T>
 	{
-		Id Id { get; }
+		void SetValue(IKeyframeValue<T> value);
 
-		void ApplyConfig(CurveConfig config);
-
-		CurveConfig GetConfig();
+		void SetKeyframePassed(IKeyframeValue<T> value);
 	}
 }
