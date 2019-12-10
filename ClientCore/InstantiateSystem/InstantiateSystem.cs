@@ -19,7 +19,7 @@ namespace Bombardel.CurveNet.Client.Instantiate
 
 	public delegate T Constructor<T>();
 
-    public class InstantiateSystem
+    public class InstantiateSystem : ICurveNetworkClient
 	{
 		private CurveStore _curveStore;
 		private ObjectStore _objectStore;
@@ -31,11 +31,30 @@ namespace Bombardel.CurveNet.Client.Instantiate
 
 		private int _classCount = 0;
 
+		private bool waitingForLifetimeCurve = true;
 
-		public InstantiateSystem(CurveStore curveStore)
+
+		public InstantiateSystem(ICurveNetworkServer serverInterface)
 		{
-			_curveStore = curveStore;
+			_curveStore = new CurveStore(serverInterface);
 		}
+
+		public void AddNewCurve(Id remoteId, CurveConfig config)
+		{
+
+			// if this is a lifetime curve, we use it to determine which object to spawn
+			if (waitingForLifetimeCurve)
+			{
+				// TODO spawn an object
+			}
+			else
+			{
+				// TODO make sure that all the initial configs/values for the curves were received
+				// before we "release" the object and call it ready.
+				int;decimal;d
+			}
+		}
+
 
 		public void RegisterClass<T>(Constructor<T> constructor) where T : IInstantiable
 		{
